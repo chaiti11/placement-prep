@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Placement Prep Dashboard</title>
+<style>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f6fb;
+}
+.sidebar {
+  width: 230px;
+  height: 100vh;
+  background: #2f80ed;
+  position: fixed;
+  color: white;
+  padding-top: 20px;
+}
+.sidebar h2 { text-align: center; margin-bottom: 30px; }
+.sidebar a {
+  display: block;
+  color: white;
+  padding: 15px 20px;
+  text-decoration: none;
+}
+.sidebar a:hover { background: #1c5dc9; }
+.main { margin-left: 230px; padding: 30px; }
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.cards { display: flex; gap: 20px; margin-bottom: 30px; }
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 200px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  text-align: center;
+}
+.section {
+  background: white;
+  padding: 20px;
+  margin-bottom: 25px;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+.section h3 { margin-bottom: 15px; }
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+button {
+  background: #2f80ed;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover { background: #1c5dc9; }
+.badge {
+  background: #e8f4ff;
+  color: #2f80ed;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>Placement Prep</h2>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="#">Study Materials</a>
+  <a href="#">Practice Tests</a>
+  <a href="#">Result Analysis</a>
+  <a href="#">Profile</a>
+  <a href="loginpage.html" onclick="logout()">Logout</a>
+</div>
+
+<div class="main">
+  <div class="header">
+    <h2>Dashboard</h2>
+    <h4 id="welcomeMsg">Welcome 👋</h4>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="cards">
+    <div class="card">
+      <h3>Practice Tests</h3>
+      <p id="totalTests">Loading...</p>
+    </div>
+    <div class="card">
+      <h3>Avg Score</h3>
+      <p id="avgScore">Loading...</p>
+    </div>
+    <div class="card">
+      <h3>Last Score</h3>
+      <p id="lastScore">Loading...</p>
+    </div>
+  </div>
+
+  <!-- Study Materials -->
+  <div class="section">
+    <h3>Study Materials</h3>
+    <div class="item">
+      <span>Coding Practice</span>
+      <a href="../study materials/code-topics.html" style="background:#007BFF;color:white;padding:8px 16px;text-decoration:none;border-radius:5px;">Open</a>
+    </div>
+    <div class="item">
+      <span>Aptitude Materials</span>
+      <a href="../study materials/aptitude materials/aptitude-topics.html" style="background:#007BFF;color:white;padding:8px 16px;text-decoration:none;border-radius:5px;">Open</a>
+    </div>
+  </div>
+
+  <!-- Practice Tests -->
+  <div class="section">
+    <h3>Practice Tests</h3>
+    <div class="item">
+      <span>Aptitude Test</span>
+      <button onclick="window.location.href='aptitude test.html'">Start</button>
+    </div>
+    <div class="item">
+      <span>Logical Reasoning Test</span>
+      <button onclick="window.location.href='logical test.html'">Start</button>
+    </div>
+    <div class="item">
+      <span>Coding Challenge</span>
+      <button onclick="window.location.href='coding test.html'">Start</button>
+    </div>
+  </div>
+
+  <!-- Recent Results -->
+  <div class="section">
+    <h3>Recent Results</h3>
+    <div id="recentResults"><p>Loading results...</p></div>
+  </div>
+</div>
+
+<script>
+// Check login
+const userId = sessionStorage.getItem('userId');
+const userName = sessionStorage.getItem('userName');
+
+if (!userId) {
+  window.location.href = 'loginpage.html';
+}
+
+document.getElementById('welcomeMsg').textContent = `Welcome, ${userName} 👋`;
+
+// Load stats from backend
+async function loadStats() {
+  try {
+    const res = await fetch(`http://localhost:3000/api/stats/${userId}`);
+    const data = await res.json();
+
+    if (data.success) {
+      document.getElementById('totalTests').textContent = data.totalTests + ' Completed';
+      document.getElementById('avgScore').textContent = data.avgScore + '%';
+      document.getElementById('lastScore').textContent = data.lastScore + '%';
+
+      const container = document.getElementById('recentResults');
+      if (data.recentResults.length === 0) {
+        container.innerHTML = '<p>No tests taken yet. Start a test above!</p>';
+      } else {
+        container.innerHTML = data.recentResults.map(r => `
+          <div class="item">
+            <span>${r.test_type}</span>
+            <span>${new Date(r.taken_at).toLocaleDateString()}</span>
+            <span class="badge">${r.score} / ${r.total}</span>
+          </div>
+        `).join('');
+      }
+    }
+  } catch (err) {
+    document.getElementById('totalTests').textContent = 'N/A';
+    document.getElementById('avgScore').textContent = 'N/A';
+    document.getElementById('lastScore').textContent = 'N/A';
+    document.getElementById('recentResults').innerHTML = '<p style="color:red">Could not load results. Is the server running?</p>';
+  }
+}
+
+function logout() {
+  sessionStorage.clear();
+}
+
+loadStats();
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Aptitude Test</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  min-height: 100vh;
+  margin: 0;
+}
+.container {
+  width: 60%;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  margin-top: 40px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px gray;
+}
+h1 { text-align: center; }
+button {
+  padding: 10px 20px;
+  background: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+button:hover { background: #0056b3; }
+.result {
+  font-size: 20px;
+  margin-top: 20px;
+  font-weight: bold;
+}
+.back-btn {
+  display: block;
+  margin: 20px auto;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Aptitude Test</h1>
+  <form id="quizForm"></form>
+  <button type="button" onclick="checkAnswers()">Submit Test</button>
+  <p id="result" class="result"></p>
+</div>
+<br>
+<button class="back-btn" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+
+<script>
+const aptitudeQuestions = [
+  {question:"25 + 17 ?", options:["40","42","45","47"], answer:"42"},
+  {question:"12 × 12 ?", options:["120","144","132","156"], answer:"144"},
+  {question:"Ratio 3:2, boys=30, girls=?", options:["15","20","25","18"], answer:"20"},
+  {question:"Train speed 60km/h, distance in 2hr?", options:["100","120","130","140"], answer:"120"},
+  {question:"Square of 15 ?", options:["215","225","235","245"], answer:"225"},
+  {question:"Average of 10,20,30 ?", options:["15","20","25","30"], answer:"20"},
+  {question:"Simple interest on ₹1000 at 10% for 2yr?", options:["200","100","300","150"], answer:"200"},
+  {question:"Profit if CP=400 SP=460?", options:["10%","15%","12%","20%"], answer:"15%"},
+  {question:"Next number 2,4,8,16 ?", options:["24","30","32","40"], answer:"32"},
+  {question:"9 × 8 ?", options:["64","72","81","63"], answer:"72"},
+  {question:"60 ÷ 5 ?", options:["10","12","15","8"], answer:"12"},
+  {question:"18 + 12 ?", options:["28","30","32","34"], answer:"30"},
+  {question:"7 × 9 ?", options:["56","63","72","81"], answer:"63"},
+  {question:"100 ÷ 4 ?", options:["20","22","25","30"], answer:"25"},
+  {question:"16 × 2 ?", options:["28","30","32","36"], answer:"32"},
+  {question:"45 + 15 ?", options:["50","55","60","65"], answer:"60"},
+  {question:"81 ÷ 9 ?", options:["7","8","9","10"], answer:"9"},
+  {question:"14 × 3 ?", options:["40","42","44","48"], answer:"42"},
+  {question:"60 − 35 ?", options:["20","25","30","35"], answer:"25"},
+  {question:"11 × 11 ?", options:["111","121","131","141"], answer:"121"},
+  {question:"Next 3,6,9,12 ?", options:["14","15","18","21"], answer:"15"},
+  {question:"Average of 5 numbers = 20, sum?", options:["80","90","100","110"], answer:"100"},
+  {question:"10% of 500?", options:["40","50","60","70"], answer:"50"},
+  {question:"20% of 200?", options:["20","30","40","50"], answer:"40"},
+  {question:"LCM of 4,6?", options:["10","12","14","16"], answer:"12"},
+  {question:"HCF of 12,18?", options:["3","6","9","12"], answer:"6"},
+  {question:"Square of 13?", options:["159","169","179","189"], answer:"169"},
+  {question:"Cube of 3?", options:["9","18","27","36"], answer:"27"},
+  {question:"Perimeter of square, side 5?", options:["10","15","20","25"], answer:"20"},
+  {question:"Next: 1,4,9,16 ?", options:["20","22","25","30"], answer:"25"}
+];
+
+let selectedQuestions = [];
+
+function loadQuiz(questions) {
+  selectedQuestions = questions.sort(() => 0.5 - Math.random()).slice(0, 10);
+  const form = document.getElementById("quizForm");
+  selectedQuestions.forEach((q, index) => {
+    let html = `<p>${index + 1}. ${q.question}</p>`;
+    q.options.forEach(opt => {
+      html += `<input type="radio" name="q${index}" value="${opt}"> ${opt}<br>`;
+    });
+    form.innerHTML += html + "<br>";
+  });
+}
+
+async function checkAnswers() {
+  let score = 0;
+  selectedQuestions.forEach((q, index) => {
+    const ans = document.querySelector(`input[name="q${index}"]:checked`);
+    if (ans && ans.value === q.answer) score++;
+  });
+
+  document.getElementById("result").innerHTML = `Your Score: ${score} / 10`;
+
+  // Save to backend
+  const userId = sessionStorage.getItem('userId');
+  if (userId) {
+    try {
+      await fetch('http://localhost:3000/api/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, testType: 'Aptitude Test', score, total: 10 })
+      });
+    } catch (err) {
+      console.warn('Could not save result to server.');
+    }
+  }
+}
+
+loadQuiz(aptitudeQuestions);
+</script>
+</body>
+</html>

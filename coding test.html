@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Coding Test</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  min-height: 100vh;
+  margin: 0;
+}
+.container {
+  width: 60%;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  margin-top: 40px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px gray;
+}
+h1 { text-align: center; }
+button {
+  padding: 10px 20px;
+  background: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+button:hover { background: #0056b3; }
+.result { font-size: 20px; margin-top: 20px; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Coding Test</h1>
+  <form id="quizForm"></form>
+  <br>
+  <button type="button" onclick="checkAnswers()">Submit Test</button>
+  <p id="result" class="result"></p>
+</div>
+<br>
+<button onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+
+<script>
+const codingQuestions = [
+  {question:"Which language runs in a browser?", options:["Java","Python","C","JavaScript"], answer:"JavaScript"},
+  {question:"HTML stands for?", options:["Hyper Text Markup Language","High Text Machine Language","Hyper Tool Markup","None"], answer:"Hyper Text Markup Language"},
+  {question:"Which tag creates a link?", options:["&lt;a&gt;","&lt;p&gt;","&lt;div&gt;","&lt;img&gt;"], answer:"&lt;a&gt;"},
+  {question:"Python output: print(2+3)?", options:["5","23","6","4"], answer:"5"},
+  {question:"JS keyword for variable?", options:["var","int","num","define"], answer:"var"},
+  {question:"Which loop repeats?", options:["if","loop","for","case"], answer:"for"},
+  {question:"Array index starts at?", options:["0","1","2","-1"], answer:"0"},
+  {question:"CSS is used for?", options:["Structure","Style","Database","Logic"], answer:"Style"},
+  {question:"Function keyword in JS?", options:["fun","function","define","method"], answer:"function"},
+  {question:"Which is a backend language?", options:["HTML","CSS","Python","Bootstrap"], answer:"Python"},
+  {question:"Tag for image?", options:["&lt;img&gt;","&lt;pic&gt;","&lt;src&gt;","&lt;photo&gt;"], answer:"&lt;img&gt;"},
+  {question:"JS console output?", options:["print","echo","console.log","write"], answer:"console.log"},
+  {question:"Boolean values?", options:["True False","Yes No","On Off","Up Down"], answer:"True False"},
+  {question:"Which is a database?", options:["MySQL","HTML","CSS","JS"], answer:"MySQL"},
+  {question:"Python comment symbol?", options:["//","#","<!-- -->","/* */"], answer:"#"},
+  {question:"HTML heading tag?", options:["&lt;h1&gt;","&lt;head&gt;","&lt;title&gt;","&lt;body&gt;"], answer:"&lt;h1&gt;"},
+  {question:"JS click event?", options:["onclick","onpress","onhit","onrun"], answer:"onclick"},
+  {question:"CSS color property?", options:["font","color","size","style"], answer:"color"},
+  {question:"Python list syntax?", options:["[]","{}","()","<>"], answer:"[]"},
+  {question:"C language file extension?", options:[".c",".py",".java",".html"], answer:".c"},
+  {question:"JS conditional statement?", options:["if","loop","for","switch"], answer:"if"},
+  {question:"Tag for paragraph?", options:["&lt;p&gt;","&lt;text&gt;","&lt;para&gt;","&lt;content&gt;"], answer:"&lt;p&gt;"},
+  {question:"HTML file extension?", options:[".html",".css",".js",".py"], answer:".html"},
+  {question:"Python print function?", options:["echo","write","print","display"], answer:"print"},
+  {question:"JS string?", options:["'text'","123","true","[]"], answer:"'text'"},
+  {question:"CSS spacing outside element?", options:["spacing","gap","margin","border"], answer:"margin"},
+  {question:"HTML list tags?", options:["&lt;ul&gt;","&lt;li&gt;","&lt;ol&gt;","All"], answer:"All"},
+  {question:"JS addition operator?", options:["-","+","*","/"], answer:"+"},
+  {question:"Python loop keyword?", options:["for","loop","repeat","iterate"], answer:"for"},
+  {question:"Which is not a programming language?", options:["HTML","Python","Java","C++"], answer:"HTML"}
+];
+
+let selectedQuestions = [];
+
+function loadQuiz(questions) {
+  selectedQuestions = questions.sort(() => 0.5 - Math.random()).slice(0, 10);
+  const form = document.getElementById("quizForm");
+  selectedQuestions.forEach((q, index) => {
+    let html = `<p>${index + 1}. ${q.question}</p>`;
+    q.options.forEach(opt => {
+      html += `<input type="radio" name="q${index}" value="${opt}"> ${opt}<br>`;
+    });
+    form.innerHTML += html + "<br>";
+  });
+}
+
+async function checkAnswers() {
+  let score = 0;
+  selectedQuestions.forEach((q, index) => {
+    const ans = document.querySelector(`input[name="q${index}"]:checked`);
+    if (ans && ans.value === q.answer) score++;
+  });
+
+  document.getElementById("result").innerHTML = `Your Score: ${score} / 10`;
+
+  const userId = sessionStorage.getItem('userId');
+  if (userId) {
+    try {
+      await fetch('http://localhost:3000/api/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, testType: 'Coding Test', score, total: 10 })
+      });
+    } catch (err) {
+      console.warn('Could not save result to server.');
+    }
+  }
+}
+
+loadQuiz(codingQuestions);
+</script>
+</body>
+</html>

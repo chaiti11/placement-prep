@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Campus Placement Preparation App - Sign Up</title>
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  height: 100vh;
+  margin: 0;
+}
+.container {
+  width: 350px;
+  background: white;
+  padding: 25px;
+  margin: 60px auto;
+  border-radius: 10px;
+  box-shadow: 0 0 10px gray;
+}
+h2 { text-align: center; }
+input[type=text],
+input[type=email],
+input[type=password] {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+button {
+  width: 100%;
+  padding: 10px;
+  background: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+button:hover { background: #0056b3; }
+p { text-align: center; }
+.error { color: red; font-size: 13px; text-align: center; }
+.success { color: green; font-size: 13px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>Sign Up</h2>
+
+  <label>Full Name</label>
+  <input type="text" id="name" placeholder="Enter your name" required>
+
+  <label>Email</label>
+  <input type="email" id="email" placeholder="Enter your email" required>
+
+  <label>Password</label>
+  <input type="password" id="password" placeholder="Enter password" required>
+
+  <label>College Name</label>
+  <input type="text" id="college" placeholder="Enter college name">
+
+  <label>Branch</label>
+  <input type="text" id="branch" placeholder="Enter branch">
+
+  <button onclick="signup()">Create Account</button>
+
+  <p id="msg" class="error"></p>
+  <p>Already have an account? <a href="loginpage.html">Login</a></p>
+</div>
+
+<script>
+async function signup() {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const college = document.getElementById('college').value.trim();
+  const branch = document.getElementById('branch').value.trim();
+  const msg = document.getElementById('msg');
+
+  if (!name || !email || !password) {
+    msg.className = 'error';
+    msg.textContent = 'Name, email and password are required.';
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:3000/api/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, college, branch })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Save user info and go to dashboard
+      sessionStorage.setItem('userId', data.userId);
+      sessionStorage.setItem('userName', data.name);
+      msg.className = 'success';
+      msg.textContent = 'Account created! Redirecting...';
+      setTimeout(() => window.location.href = 'dashboard.html', 1000);
+    } else {
+      msg.className = 'error';
+      msg.textContent = data.message;
+    }
+  } catch (err) {
+    msg.className = 'error';
+    msg.textContent = 'Cannot connect to server. Make sure it is running.';
+  }
+}
+</script>
+</body>
+</html>

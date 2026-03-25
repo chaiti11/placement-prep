@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Placement Prep App</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+.container {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 300px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  text-align: center;
+}
+h2 { margin-bottom: 20px; }
+input {
+  width: 90%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+button {
+  width: 95%;
+  padding: 10px;
+  background: #4facfe;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+button:hover { background: #2e8bff; }
+.link { margin-top: 15px; font-size: 14px; }
+.error { color: red; font-size: 13px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>Placement Prep</h2>
+  <input type="email" id="email" placeholder="Email" required>
+  <input type="password" id="password" placeholder="Password" required>
+  <button onclick="login()">Login</button>
+  <p class="error" id="errorMsg"></p>
+  <div class="link">
+    Don't have an account? <a href="signinpage.html">Sign Up</a>
+  </div>
+</div>
+
+<script>
+async function login() {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const errorMsg = document.getElementById('errorMsg');
+
+  if (!email || !password) {
+    errorMsg.textContent = 'Please fill in all fields.';
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:3000/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Save user info in sessionStorage so other pages can use it
+      sessionStorage.setItem('userId', data.userId);
+      sessionStorage.setItem('userName', data.name);
+      window.location.href = 'dashboard.html';
+    } else {
+      errorMsg.textContent = data.message;
+    }
+  } catch (err) {
+    errorMsg.textContent = 'Cannot connect to server. Make sure it is running.';
+  }
+}
+</script>
+</body>
+</html>
